@@ -1,0 +1,59 @@
+---
+title: "Diagramas de Carga - Base Arreglada"
+author: "Ariel Fuentes"
+date: "2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(kableExtra))
+suppressPackageStartupMessages(library(plotly))
+suppressPackageStartupMessages(library(knitr))
+```
+
+## Recorrido B27 Ida
+
+Este diagrama de Carga es producto del proceso de arreglo de la base, con el objeto de calibrar el modelo de asignación del modo Bus.  
+
+### 1) Datos
+
+```{r, echo=FALSE, message=FALSE}
+library(readr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+df <- read_delim(file = "DCarga2019.csv", delim = ";") %>%
+  filter(UN == 6, sersen == "B27I") 
+df %>% 
+  kable(digits = 2) %>%
+  kable_styling() %>%
+  scroll_box(height = "300px")
+
+```
+
+### 2) Gráfico
+
+
+
+```{r, echo=FALSE}
+
+library(dplyr)
+library(plotly)
+
+plot_ly(df, width = 1100, height = 500) %>%
+    add_trace(x = ~Orden, y = ~Sube, type = "bar", name = "Subidas (TRX)",
+              marker = list(color = "#3399FF"), hovertemplate = 'Sube: %{y:.2f} TRX') %>%
+    add_trace(x = ~Orden, y = ~Baja, type = "bar", name = "Bajadas (TRX)",
+              marker = list(color = "#FF6633"), hovertemplate = 'Baja: %{y:.2f} TRX') %>%
+    add_trace(x = ~Orden, y = ~Capacidad, type = "scatter", mode = "lines", name = "Máx. Cap. (TRX)",
+              line = list(color = '#CC9900'), hovertemplate = 'Baja: %{y:.2f} TRX') %>%
+    add_trace(x = ~Orden, y = ~Carga, type = "scatter", mode = "lines", name = "Carga (TRX)",
+              line = list(color = '#339900'), hovertemplate = 'Carga: %{y:.2f} TRX') %>%
+    layout(title = ~paste("Diagrama de Carga", select(.data = df, sersen) %>% distinct()),
+           xaxis = list(title = "Paradas (Orden)"), 
+           yaxis = list(side = "left", title = "Cantidad de Pasajeros (TRX)"))
+```
